@@ -1,0 +1,39 @@
+{
+  "name": "rostrum-backend",
+  "version": "3.0.0",
+  "description": "Backend for Rostrum - thesis defense rehearsal system",
+  "engines": { "node": ">=18" },
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
+    "migrate": "node src/db/migrate.js",
+    "test": "node --test --test-concurrency=1 test/analysis.test.js test/asr-contract.test.js test/files-access.integration.test.js test/user-settings.test.js test/users.integration.test.js test/transaction.test.js test/sessions-validation.integration.test.js test/env.test.js test/presentation-import.test.js"
+  },
+  "dependencies": {
+    "@xmldom/xmldom": "^0.8.10",
+    "az": "^0.2.3",
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "decompress": "^4.2.1",
+    "dotenv": "^16.4.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "express-validator": "^7.0.1",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "officeparser": "^4.0.0",
+    "pdf-parse": "^1.1.1",
+    "pg": "^8.12.0",
+    "pino": "^8.19.0",
+    "pino-pretty": "^10.3.1",
+    "swagger-jsdoc": "^6.3.0",
+    "swagger-ui-express": "^5.0.1",
+    "uuid": "^14.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.3"
+  }
+}

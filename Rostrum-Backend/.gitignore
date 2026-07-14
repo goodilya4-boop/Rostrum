@@ -1,0 +1,29 @@
+# Зависимости
+node_modules/
+.env
+
+# Загруженные файлы
+uploads/*
+!uploads/.gitkeep
+
+# Логи
+logs/
+*.log
+npm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Временные файлы
+tmp/
+temp/
+
+# Python / Vosk service
+__pycache__/
+*.pyc
+.venv/

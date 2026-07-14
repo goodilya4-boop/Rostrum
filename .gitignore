@@ -1,0 +1,8 @@
+.env
+.env.*
+!.env.example
+.agents/
+.codex/
+.vscode/
+*.dump
+*.backup
