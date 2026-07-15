@@ -1,5 +1,3 @@
-// src/services/session.service.js
-
 const SessionModel = require('../models/session.model');
 const PresentationModel = require('../models/presentation.model');
 const logger = require('../utils/logger');
@@ -10,13 +8,11 @@ const { withTransaction } = require('../db/transaction');
 const SessionService = {
   async createSession({ userId, presentationId, timeLimitSec, speechEngine }) {
     const selectedEngine = speechEngine || ASR_ENGINES.WEB;
-    // The Vosk contract is kept for continued development, but users must not
-    // create sessions that cannot currently be completed reliably.
+    // Vosk пока в разработке, поэтому для новой сессии его выбрать нельзя.
     if (selectedEngine === ASR_ENGINES.VOSK) {
       throw new AppError('Vosk находится в разработке. Используйте Web Speech', 501);
     }
 
-    // Проверяем существование презентации
     const presentation = await PresentationModel.findById(presentationId);
     if (!presentation) {
       throw new AppError('Презентация не найдена', 404);
@@ -131,8 +127,7 @@ const SessionService = {
 
     const result = {
       session,
-      // Active session clients need this to restore the current slide after a reload
-      // without writing a duplicate initial slide change.
+      // После обновления страницы возвращаемся к последнему слайду.
       slide_changes: await SessionModel.getSlideChanges(sessionId),
     };
 

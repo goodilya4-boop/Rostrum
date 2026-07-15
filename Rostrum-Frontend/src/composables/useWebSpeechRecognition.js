@@ -226,7 +226,7 @@ export function useWebSpeechRecognition({
     try {
       recognition?.abort();
     } catch {
-      // Recognition may already be inactive.
+      // Распознавание могло остановиться раньше.
     }
     recognitionActive = false;
     listening.value = false;

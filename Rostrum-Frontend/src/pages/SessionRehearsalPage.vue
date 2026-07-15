@@ -514,7 +514,7 @@ function scheduleVoskRetry(status) {
     return;
   }
 
-  // A missing/unavailable Vosk service must not generate a request storm.
+  // Если Vosk недоступен, увеличиваем паузу между попытками.
   const delay = Math.min(60000, 3000 * (2 ** Math.min(voskRetryAttempts - 1, 5)));
   nextVoskRetryAt = Date.now() + delay;
   voskRetryTimeout = window.setTimeout(flushVoskChunks, delay);

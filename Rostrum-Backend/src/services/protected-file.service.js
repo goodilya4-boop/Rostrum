@@ -35,7 +35,7 @@ async function open(filePath, allowedRoots) {
     throw new AppError('Файл не найден', 404);
   }
 
-  // realpath also prevents a symlink stored below the asset root from escaping it.
+  // Проверяем настоящий путь, чтобы нельзя было выйти из папки через ссылку.
   if (!isInside(realRoot, realCandidate)) throw new AppError('Файл не найден', 404);
 
   let handle;

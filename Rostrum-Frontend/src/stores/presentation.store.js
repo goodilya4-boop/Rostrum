@@ -27,7 +27,7 @@ export const usePresentationStore = defineStore('presentation', () => {
     loading.value = true;
     error.value = null;
     try {
-      // Backend returns presentation metadata and slides from one protected endpoint.
+      // Сервер сразу возвращает презентацию вместе со слайдами.
       const { data } = await presentationsAPI.getSlides(id);
       const presentation = data.presentation;
       const slides = data.slides;

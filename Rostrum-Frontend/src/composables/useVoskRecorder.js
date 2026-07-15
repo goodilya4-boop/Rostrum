@@ -205,7 +205,7 @@ export function useVoskRecorder({
       try {
         if (recorder.state !== 'inactive') recorder.stop();
       } catch {
-        // Recorder may already be closed.
+        // Запись могла закрыться раньше.
       }
     }
     finishStop();

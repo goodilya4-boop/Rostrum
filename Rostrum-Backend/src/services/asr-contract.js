@@ -78,8 +78,7 @@ function getCapabilities(voskServiceReachable) {
         endpoint: '/sessions/:id/transcripts',
       },
       vosk: {
-        // The transport contract is retained for future work, but the engine is
-        // deliberately unavailable until deployment and E2E testing are complete.
+        // Vosk пока в разработке, поэтому использовать его нельзя.
         available: false,
         status: 'development',
         service_reachable: Boolean(voskServiceReachable),

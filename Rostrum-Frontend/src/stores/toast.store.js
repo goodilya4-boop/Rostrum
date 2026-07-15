@@ -11,7 +11,7 @@ export const useToastStore = defineStore('toast', () => {
     message.value = text;
     type.value = notificationType;
     duration.value = notificationDuration;
-    // Re-trigger the transition and timer when a new notification replaces an active one.
+    // Для нового уведомления заново запускаем анимацию и таймер.
     visible.value = false;
     queueMicrotask(() => {
       visible.value = true;
