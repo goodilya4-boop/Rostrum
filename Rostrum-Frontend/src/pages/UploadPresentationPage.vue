@@ -144,7 +144,7 @@ async function uploadFile() {
   uploadResult.value = null;
 
   const formData = new FormData();
-  // Имя поля должно совпадать с тем, что ожидает multer
+  // Сервер ждёт файл в поле presentation.
   formData.append('presentation', selectedFile.value);
 
   const result = await store.uploadPresentation(formData, (progressEvent) => {

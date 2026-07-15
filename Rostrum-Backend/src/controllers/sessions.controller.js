@@ -59,7 +59,7 @@ const SessionsController = {
   }
 },
 
-// Обновленный list с пагинацией:
+// Возвращаем историю по страницам.
 async list(req, res, next) {
   try {
     const page = Math.max(1, parseInt(req.query.page) || 1);
@@ -193,7 +193,6 @@ async list(req, res, next) {
 
       logger.info(`Completing session ${sessionId}`);
 
-      // Проверяем существование сессии
       const existingSession = await SessionModel.findById(sessionId);
       if (!existingSession) {
         return res.status(404).json({
@@ -201,27 +200,24 @@ async list(req, res, next) {
         });
       }
 
-      // Проверяем права доступа
       if (existingSession.user_id !== req.user.user_id) {
         return res.status(403).json({
           error: { message: 'Доступ запрещен', status: 403 }
         });
       }
 
-      // Завершаем сессию
       const session = await SessionService.completeSession(sessionId, req.user.user_id);
 
-      // Запускаем анализ (не блокируем ответ, если анализ упадет)
+      // Если анализ не сработает, сама сессия всё равно сохранится.
       let analysisResult = null;
       try {
         analysisResult = await analysisService.analyzeSession(sessionId);
         logger.info({ sessionId }, 'Session analysis completed successfully');
       } catch (analysisError) {
         logger.error({ sessionId, error: analysisError.message }, 'Session analysis failed');
-        // Сессия уже завершена, анализ можно будет перезапустить
+        // Анализ можно будет запустить ещё раз.
       }
 
-      // Получаем результаты анализа
       const summary = await SessionModel.getSummary(sessionId);
       const feedback = await SessionModel.getSlideFeedback(sessionId);
 

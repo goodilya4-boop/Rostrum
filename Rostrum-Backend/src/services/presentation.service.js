@@ -146,8 +146,7 @@ const PresentationService = {
     }
     const slides = await PresentationModel.getSlides(presentationId);
 
-    // Сначала удаляем запись и связанные данные в БД. Файловая система не может
-    // участвовать в PostgreSQL-транзакции, поэтому файл очищаем после успешного DELETE.
+    // Сначала удаляем данные из базы, а потом сам файл.
     await PresentationModel.delete(presentationId);
 
     if (presentation.file_path) {

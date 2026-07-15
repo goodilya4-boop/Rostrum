@@ -10,11 +10,11 @@ const app = createApp(App);
 app.use(createPinia());
 app.use(router);
 
-// Инициализировать тему
+// Загружаем выбранную тему
 import { useThemeStore } from '@/stores/theme.store';
 useThemeStore();
 
-// Загрузить пользователя при старте
+// Проверяем, вошёл ли пользователь
 import { useAuthStore } from '@/stores/auth.store';
 const authStore = useAuthStore();
 authStore.fetchUser();

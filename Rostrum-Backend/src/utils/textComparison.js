@@ -1,14 +1,12 @@
 const { STOP_WORDS } = require('./stopwords');
 const logger = require('./logger');
 
-// Кэш для морфологического анализатора
+// Здесь хранится готовый анализатор слов.
 let Az = null;
 let morphInitialized = false;
 const PHRASE_MATCH_THRESHOLD = 0.6;
 
-/*
- * Инициализация морфологического анализатора
- */
+// Подготавливаем анализатор русских слов.
 function initMorph(callback) {
   try {
     Az = require('az');
@@ -24,16 +22,11 @@ function initMorph(callback) {
   }
 }
 
-/*
- * Проверка готовности морфологического анализатора
- */
 function isMorphReady() {
   return morphInitialized;
 }
 
-/*
- * Лемматизация слова или фразы
- */
+// Приводим слова к начальной форме.
 function lemmatize(text) {
   if (!text) return [];
 
@@ -45,13 +38,10 @@ function lemmatize(text) {
     }
   }
 
-  // Fallback: простое удаление окончаний
+  // Если анализатор не запустился, просто убираем окончания.
   return simpleStem(text);
 }
 
-/*
- * Простое удаление окончаний (стемминг)
- */
 function simpleStem(text) {
   const words = text.toLowerCase().split(/\s+/).filter(w => w.length > 0);
   return words.map(word => {
@@ -73,9 +63,7 @@ function simpleStem(text) {
   });
 }
 
-/*
- * Токенизация текста (удаление стоп-слов и знаков препинания)
- */
+// Оставляем только слова, которые пригодятся для сравнения.
 function tokenize(text) {
   if (!text) return [];
 
@@ -87,9 +75,6 @@ function tokenize(text) {
     .filter(word => word.length > 2 && !STOP_WORDS.has(word));
 }
 
-/*
- * Нормализация текста (лемматизация + удаление стоп-слов)
- */
 function normalizeText(text) {
   if (!text) return [];
 
@@ -97,12 +82,7 @@ function normalizeText(text) {
   return lemmatize(tokens.join(' '));
 }
 
-/*
- * Сравнивает произнесённый текст с ключевыми фразами слайда
- * @param {string} spokenText - объединённый текст всех транскриптов слайда
- * @param {string[]} keyPhrases - массив ключевых фраз слайда
- * @returns {Object} { coverageScore, matchedPhrases, missedPhrases, spokenKeywords }
- */
+// Проверяем, какие важные фразы со слайда были произнесены.
 function compareTextWithPhrases(spokenText, keyPhrases) {
   const validPhrases = Array.isArray(keyPhrases)
     ? keyPhrases.filter(phrase => typeof phrase === 'string' && phrase.trim().length > 0)

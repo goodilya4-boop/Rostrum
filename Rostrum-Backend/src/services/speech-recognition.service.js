@@ -56,7 +56,7 @@ async function claimChunk(sessionId, chunkId, file, offsetMs, executor) {
 
 const SpeechRecognitionService = {
   async getCapabilities() {
-    // Vosk remains visible in the API contract, but cannot be selected yet.
+    // Vosk пока в разработке.
     return getCapabilities(false);
   },
 

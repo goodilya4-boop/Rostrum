@@ -11,8 +11,7 @@ const db = require('./config/db');
 const { initMorph } = require('./utils/textComparison');
 const { isRehearsalRequest } = require('./middleware/rateLimitPolicy');
 
-// Сервер начинает принимать запросы только после выбора стабильного режима
-// нормализации: морфология az либо детерминированный fallback-стемминг.
+// Сначала ждём, пока подготовится обработка русских слов.
 const morphologyReady = new Promise(resolve => {
   initMorph(() => {
     logger.info('Morphological analyzer ready');
@@ -28,7 +27,7 @@ const healthRoutes = require('./routes/health.routes');
 
 const app = express();
 
-// Базовые middleware
+// Основные настройки приложения
 app.disable('x-powered-by');
 if (env.trustProxy > 0) app.set('trust proxy', env.trustProxy);
 app.use(helmet());
@@ -37,12 +36,12 @@ app.use(requestIdMiddleware);
 app.use(express.json({ limit: env.requestBodyLimit }));
 app.use(express.urlencoded({ extended: true, limit: env.requestBodyLimit }));
 
-// Логирование HTTP запросов
+// Записываем запросы в журнал
 app.use(morgan('combined', {
   stream: { write: message => logger.info(message.trim()) },
 }));
 
-// Rate limiting
+// Ограничиваем слишком частые запросы
 const apiLimiter = rateLimit({
   windowMs: env.rateLimit.windowMs,
   max: env.rateLimit.apiMax,
@@ -80,25 +79,15 @@ app.use('/api/users', usersRoutes);
 app.use('/api/presentations', presentationsRoutes);
 app.use('/api/sessions', sessionsRoutes);
 
-// Swagger (если установлен)
-try {
-  const swaggerUi = require('swagger-ui-express');
-  const swaggerSpec = require('./config/swagger');
-  app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-  logger.info('Swagger docs available at /api/docs');
-} catch (e) {
-  logger.warn('Swagger not configured');
-}
-
-// Обработка 404
+// Ответ для неизвестного адреса
 app.use((req, res) => {
   res.status(404).json({ error: { message: 'Маршрут не найден', status: 404 } });
 });
 
-// Глобальный обработчик ошибок
+// Общая обработка ошибок
 app.use(errorHandler);
 
-// Запуск сервера
+// Запускаем сервер, если файл вызван напрямую
 if (require.main === module) {
   morphologyReady.then(() => {
     const PORT = env.port;
@@ -106,7 +95,6 @@ if (require.main === module) {
       logger.info(`Server running on port ${PORT} in ${env.nodeEnv} mode`);
       logger.info(`API: http://localhost:${PORT}/api`);
       logger.info(`Health: http://localhost:${PORT}/api/health`);
-      logger.info(`Docs: http://localhost:${PORT}/api/docs`);
     });
 
     let shuttingDown = false;

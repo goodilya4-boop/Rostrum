@@ -32,7 +32,7 @@ class AnalysisService {
       const transcripts = await SessionModel.getTranscriptSegments(sessionId);
       const slideChanges = await SessionModel.getSlideChanges(sessionId);
 
-      // Граничный случай: нет транскриптов
+      // Без распознанной речи анализировать нечего.
       if (!transcripts?.length) {
         logger.warn({ sessionId }, 'No transcripts found');
         return this.createEmptyAnalysis(
@@ -41,11 +41,11 @@ class AnalysisService {
         );
       }
 
-      // Привязка транскриптов к слайдам
+      // Распределяем речь по слайдам.
       const slideTexts = mapTranscriptsToSlides(transcripts, slideChanges, slides.length);
       const allSpokenText = transcripts.map(t => t.spoken_text).join(' ');
 
-      // Анализ каждого слайда
+      // Проверяем каждый слайд.
       const slideFeedbacks = [];
 
       for (const slide of slides) {
@@ -59,7 +59,7 @@ class AnalysisService {
         });
       }
 
-      // Вычисление метрик
+      // Считаем общие показатели.
       const coverage = calculateCoverage(slideFeedbacks);
       const fillerWordCount = countFillerWords(allSpokenText);
       const speech = calculateSpeechMetrics(
@@ -69,7 +69,7 @@ class AnalysisService {
         fillerWordCount
       );
 
-      // Вычисление radar_data
+      // Готовим данные для диаграммы.
       const significantWords = this.getSignificantWords(allSpokenText);
       const radarData = calculateRadarData({
         coverage,
@@ -79,7 +79,7 @@ class AnalysisService {
         significantWords,
       });
 
-      // Генерация рекомендаций
+      // Собираем советы для пользователя.
       const suggestions = this.generateSuggestions({
         slideFeedbacks,
         coverage,
@@ -102,7 +102,7 @@ class AnalysisService {
         analysisStatus: 'completed',
       };
 
-      // Сохраняем feedback и сводку атомарно, чтобы отчёт не был частичным.
+      // Сохраняем весь отчёт одной транзакцией.
       await withTransaction(async client => {
         await SessionModel.deleteSlideFeedback(sessionId, client);
         for (const feedback of slideFeedbacks) {
