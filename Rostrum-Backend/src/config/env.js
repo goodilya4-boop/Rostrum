@@ -1,8 +1,3 @@
-const dotenv = require('dotenv');
-const path = require('path');
-
-dotenv.config({ path: path.join(__dirname, '../../.env') });
-
 function integer(name, fallback, { min = 0, max = Number.MAX_SAFE_INTEGER } = {}) {
   const raw = process.env[name];
   if (raw === undefined || raw === '') return fallback;
@@ -42,6 +37,7 @@ const env = {
   shutdownTimeoutMs: integer('SHUTDOWN_TIMEOUT_MS', 10000, { min: 1000, max: 60000 }),
 
   db: {
+    schema: 'medtrak',
     host: process.env.DB_HOST || 'localhost',
     port: integer('DB_PORT', 5432, { min: 1, max: 65535 }),
     database: process.env.DB_NAME || 'Rostrum',
