@@ -1,3 +1,7 @@
+-- Rostrum application schema: medtrak
+CREATE SCHEMA IF NOT EXISTS medtrak;
+SET search_path TO medtrak, public;
+
 -- ===========================
 -- 1. Пользователи (студенты)
 -- ===========================
