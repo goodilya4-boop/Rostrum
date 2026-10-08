@@ -73,6 +73,15 @@ async function migrate({ baselineVersion = null } = {}) {
 
   try {
     await client.query(`CREATE SCHEMA IF NOT EXISTS ${DB_SCHEMA}`);
+    await client.query(`
+      DO $
+      BEGIN
+        IF to_regclass('public.schema_migrations') IS NOT NULL
+           AND to_regclass('${DB_SCHEMA}.schema_migrations') IS NULL THEN
+          ALTER TABLE public.schema_migrations SET SCHEMA ${DB_SCHEMA};
+        END IF;
+      END $;
+    `);
     await client.query(`SET search_path TO ${DB_SCHEMA}, public`);
     await client.query('SELECT pg_advisory_lock(hashtext($1))', [LOCK_NAME]);
     await ensureMigrationsTable(client);
