@@ -5,6 +5,7 @@ const db = require('../config/db');
 
 const MIGRATIONS_DIR = path.join(__dirname, 'migrations');
 const LOCK_NAME = 'rostrum_schema_migrations';
+const DB_SCHEMA = 'medtrak';
 
 function checksum(content) {
   return crypto.createHash('sha256').update(content).digest('hex');
@@ -71,6 +72,8 @@ async function migrate({ baselineVersion = null } = {}) {
   const client = await db.connect();
 
   try {
+    await client.query(`CREATE SCHEMA IF NOT EXISTS ${DB_SCHEMA}`);
+    await client.query(`SET search_path TO ${DB_SCHEMA}, public`);
     await client.query('SELECT pg_advisory_lock(hashtext($1))', [LOCK_NAME]);
     await ensureMigrationsTable(client);
 
