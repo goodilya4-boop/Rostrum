@@ -11,6 +11,7 @@ const pool = new Pool({
   max: env.db.maxConnections,
   idleTimeoutMillis: env.db.idleTimeoutMs,
   connectionTimeoutMillis: env.db.connectionTimeoutMs,
+  options: `-c search_path=${env.db.schema},public`,
 });
 
 pool.on('connect', () => {
