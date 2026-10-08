@@ -73,15 +73,14 @@ async function migrate({ baselineVersion = null } = {}) {
 
   try {
     await client.query(`CREATE SCHEMA IF NOT EXISTS ${DB_SCHEMA}`);
-    await client.query(`
-      DO $
-      BEGIN
-        IF to_regclass('public.schema_migrations') IS NOT NULL
-           AND to_regclass('${DB_SCHEMA}.schema_migrations') IS NULL THEN
-          ALTER TABLE public.schema_migrations SET SCHEMA ${DB_SCHEMA};
-        END IF;
-      END $;
-    `);
+    const schemaMigrations = await client.query(
+      "SELECT to_regclass('public.schema_migrations') AS public_table, to_regclass('medtrak.schema_migrations') AS medtrak_table"
+    );
+    const existingPublicMigrations = schemaMigrations.rows[0]?.public_table;
+    const existingMedtrakMigrations = schemaMigrations.rows[0]?.medtrak_table;
+    if (existingPublicMigrations && !existingMedtrakMigrations) {
+      await client.query('ALTER TABLE public.schema_migrations SET SCHEMA medtrak');
+    }
     await client.query(`SET search_path TO ${DB_SCHEMA}, public`);
     await client.query('SELECT pg_advisory_lock(hashtext($1))', [LOCK_NAME]);
     await ensureMigrationsTable(client);
