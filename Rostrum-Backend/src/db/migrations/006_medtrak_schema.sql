@@ -1,43 +1,21 @@
--- Move an existing Rostrum installation from public to medtrak.
--- Fresh installations already create objects in medtrak via search_path.
 CREATE SCHEMA IF NOT EXISTS medtrak;
 
-DO $$
-DECLARE
-  table_name text;
-BEGIN
-  FOREACH table_name IN ARRAY ARRAY[
-    'users', 'presentations', 'slides', 'practice_sessions', 'slide_changes',
-    'transcript_segments', 'session_slide_feedback', 'session_summary', 'asr_audio_chunks'
-  ] LOOP
-    IF to_regclass('public.' || table_name) IS NOT NULL
-       AND to_regclass('medtrak.' || table_name) IS NULL THEN
-      EXECUTE format('ALTER TABLE public.%I SET SCHEMA medtrak', table_name);
-    END IF;
-  END LOOP;
-END $$;
+ALTER TABLE IF EXISTS public.users SET SCHEMA medtrak;
+ALTER TABLE IF EXISTS public.presentations SET SCHEMA medtrak;
+ALTER TABLE IF EXISTS public.slides SET SCHEMA medtrak;
+ALTER TABLE IF EXISTS public.practice_sessions SET SCHEMA medtrak;
+ALTER TABLE IF EXISTS public.slide_changes SET SCHEMA medtrak;
+ALTER TABLE IF EXISTS public.transcript_segments SET SCHEMA medtrak;
+ALTER TABLE IF EXISTS public.session_slide_feedback SET SCHEMA medtrak;
+ALTER TABLE IF EXISTS public.session_summary SET SCHEMA medtrak;
+ALTER TABLE IF EXISTS public.asr_audio_chunks SET SCHEMA medtrak;
 
-DO $$
-DECLARE
-  fn record;
-BEGIN
-  FOR fn IN
-    SELECT p.oid, p.proname, pg_get_function_identity_arguments(p.oid) AS args
-    FROM pg_proc p
-    JOIN pg_namespace n ON n.oid = p.pronamespace
-    WHERE n.nspname = 'public'
-      AND p.proname IN (
-        'calculate_duration',
-        'update_presentation_slide_count',
-        'validate_time_limit',
-        'check_slide_change_index',
-        'init_session_summary',
-        'get_user_training_history',
-        'insert_transcript_batch',
-        'get_slide_by_offset',
-        'get_session_report'
-      )
-  LOOP
-    EXECUTE format('ALTER FUNCTION public.%I(%s) SET SCHEMA medtrak', fn.proname, fn.args);
-  END LOOP;
-END $$;
+ALTER FUNCTION IF EXISTS public.calculate_duration() SET SCHEMA medtrak;
+ALTER FUNCTION IF EXISTS public.update_presentation_slide_count() SET SCHEMA medtrak;
+ALTER FUNCTION IF EXISTS public.validate_time_limit() SET SCHEMA medtrak;
+ALTER FUNCTION IF EXISTS public.check_slide_change_index() SET SCHEMA medtrak;
+ALTER FUNCTION IF EXISTS public.init_session_summary() SET SCHEMA medtrak;
+ALTER FUNCTION IF EXISTS public.get_user_training_history(integer) SET SCHEMA medtrak;
+ALTER FUNCTION IF EXISTS public.insert_transcript_batch(integer, jsonb) SET SCHEMA medtrak;
+ALTER FUNCTION IF EXISTS public.get_slide_by_offset(integer, integer) SET SCHEMA medtrak;
+ALTER FUNCTION IF EXISTS public.get_session_report(integer) SET SCHEMA medtrak;
